@@ -13,6 +13,7 @@ public class section {
 	private String term;  //number code 202201 (term)
 	private String partOfTerm;  //"A Term", "B Term", or "A Term, B Term" for semester courses
 	private String note;
+	private boolean isGPS;
 	
 	section(long crn, String number, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String term, String partOfTerm){
 		periods = new ArrayList<period>();
@@ -117,6 +118,14 @@ public class section {
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public boolean isGPS() {
+		return isGPS;
+	}
+
+	public void setGPS(boolean isGPS) {
+		this.isGPS = isGPS;
 	}
 	
 	

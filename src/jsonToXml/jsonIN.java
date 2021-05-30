@@ -100,6 +100,7 @@ public class jsonIN {
 				courseDesc = courseDesc.replace("â€�", "\"");
 				courseDesc = courseDesc.replace("Â", " ");
 				courseDesc = courseDesc.replace("â€”", "—");
+				courseDesc = courseDesc.replace("â€“", "–");
 				courseDesc = courseDesc.replace("&#43;", "+");
 				//courseDesc = courseDescRaw;
 			}else {
@@ -130,8 +131,16 @@ public class jsonIN {
 				String thisSectionNum;
 				if(thisCourseSectionFull.contains("-Quiz")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				} else {
+				}else if(thisCourseSectionFull.contains("-Y")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				}else if(thisCourseSectionFull.contains("GPS:")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf(":") - 6);
+				}else {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 1) - 1);
+				}
+				
+				if(thisSectionNum.contains("(")) {
+					thisSectionNum = thisSectionNum.substring(0, thisSectionNum.indexOf("(") - 1);
 				}
 				
 				//seats available and total seats
@@ -150,7 +159,9 @@ public class jsonIN {
 				String termActual;
 				if(term.equals("Fall")) {
 					termActual = "A Term, B Term";
-				} else {
+				} else if(term.equals("Spring")){
+					termActual = "C Term, D Term";
+				}else {
 					termActual = term;
 				}
 				
@@ -164,7 +175,14 @@ public class jsonIN {
 					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual);
 				}
 				
-				//build new section object
+				//build new section object ^^^^
+				
+				//add GPS boolean
+				if(currSecDept.equals("FY") && (courseNum.equals("1100") || courseNum.equals("1101"))) {
+					newSection.setGPS(true);
+				}else {
+					newSection.setGPS(false);
+				}
 				
 				
 				//COMMON PERIOD ATTRIBUTES
@@ -286,21 +304,57 @@ public class jsonIN {
 			
 			//SECTION COMBINER STARTS HERE
 			
-			if(lectures.isEmpty() && !labs.isEmpty()) {   //if the class ONLY has labs (of which there are a few)
+			if(!lectures.isEmpty() && labs.isEmpty() && conferences.isEmpty()) {
+				for (section lecture : lectures) {
+					newCourse.getSections().add(lecture);
+				}
+			}
+			else if(lectures.isEmpty() && !labs.isEmpty()) {   //if the class ONLY has labs (of which there are a few)
 				for (section lab : labs) {
 					newCourse.getSections().add(lab);
 				}
 			}else {
 				//use lectures as our foundation, branch off from them
 				for (section lecture : lectures) {
-					String lectureCluster = lecture.getNote();
-					if(!conferences.isEmpty()) {  //if there are conferences
-						for (section conference : conferences) {
-							
+					if(lecture.isGPS() && lecture.getNote()==null) {  //if lecture is a GPS and not part of a cluster
+						newCourse.getSections().add(lecture);
+					}else {
+						if(!conferences.isEmpty()) {  //if there are conferences
+							for (section conference : conferences) {
+								if(!labs.isEmpty()) {  //there are labs along with lectures and conferences
+									for (section lab : labs) {
+										ArrayList<section> sections = new ArrayList<section>();
+										sections.add(lecture);
+										sections.add(conference);
+										sections.add(lab);
+										if(conflictChecker(sections)) {  //if sections are ok
+											section combined = combiner(sections);
+											newCourse.getSections().add(combined);
+										}
+									}
+								}else {  //just lectures and conferences, no labs
+									ArrayList<section> sections = new ArrayList<section>();
+									sections.add(lecture);
+									sections.add(conference);
+									if(conflictChecker(sections)) {  //if sections are ok
+										section combined = combiner(sections);
+										newCourse.getSections().add(combined);
+									}
+								}
+							}
+						} else {  //there are lectures and labs ONLY
+							for (section lab : labs) {
+								ArrayList<section> sections = new ArrayList<section>();
+								sections.add(lecture);
+								sections.add(lab);
+								if(conflictChecker(sections)) {  //if sections are ok
+									section combined = combiner(sections);
+									newCourse.getSections().add(combined);
+								}
+							}
 						}
-					} else {  //there are lectures and labs ONLY
-						
 					}
+					
 				}
 			}
 			
@@ -361,7 +415,7 @@ public class jsonIN {
 		for (section section : sections) {
 			ArrayList<period> thisSectionPeriods = section.getPeriods();
 			for (period period : thisSectionPeriods) {
-				section.getPeriods().add(period);
+				result.getPeriods().add(period);
 			}
 		}
 		
@@ -377,13 +431,35 @@ public class jsonIN {
 		//check if cluster requirements are met
 		boolean goodCluster = true;
 		String cluster = "";
-		for (section section : sections) {
-			if (!(section.getNote().isEmpty())) {   //if this section has a cluster
-				if(cluster.isEmpty()) {
-					cluster = section.getNote();
-				}else {   //cluster assignment already exists, check
-					if(!(cluster.equals(section.getNote()))) {  //if the clusters do not match
-						goodCluster = false;
+		
+		//check if course is GPS. If GPS course all combinations MUST be a part of a cluster
+		boolean isGPS = sections.get(0).isGPS();
+		
+		if(isGPS) {  //all sections MUST be a part of the same cluster
+			if(sections.get(0).getNote() != null) {   //if there is a cluster
+				cluster = sections.get(0).getNote();
+			}
+			for(int i = 1; i < sections.size(); i++) {  //for the remaining sections
+				String thisCluster;
+				if(sections.get(i).getNote() != null) {
+					thisCluster = sections.get(i).getNote();
+				}else {
+					thisCluster = "";
+				}
+				
+				if(!(thisCluster.equals(cluster))) {  //if clusters don't match
+					goodCluster = false;
+				}
+			}
+		}else {    //it's ok to match with sections with no cluster assignment
+			for (section section : sections) {
+				if (section.getNote() != null) {   //if this section has a cluster
+					if(cluster.isEmpty()) {
+						cluster = section.getNote();
+					}else {   //cluster assignment already exists, check
+						if(!(cluster.equals(section.getNote()))) {  //if the clusters do not match
+							goodCluster = false;
+						}
 					}
 				}
 			}
@@ -391,7 +467,49 @@ public class jsonIN {
 		
 		
 		
-		return true;
+		boolean goodTimes = true;
+		
+		if (sections.size() == 2) {
+			period period1 = sections.get(0).getPeriods().get(0);
+			period period2 = sections.get(1).getPeriods().get(0);
+			goodTimes = periodConflictChecker(period1, period2);
+		} else if(sections.size() == 3) {
+			period period1 = sections.get(0).getPeriods().get(0);
+			period period2 = sections.get(1).getPeriods().get(0);
+			period period3 = sections.get(2).getPeriods().get(0);
+			
+			goodTimes = periodConflictChecker(period1, period2) && periodConflictChecker(period1, period3) && periodConflictChecker(period2, period3);
+		}
+		
+		return goodCluster && goodTimes;
+	}
+	
+	//checks if the given TWO PERIODS conflict with each other
+	//returns FALSE if they don't work with each other, TRUE if the combination is ok
+	public boolean periodConflictChecker(period period1, period period2) {
+		boolean result = true;
+		//assume true if they do overlap
+		boolean timeOverlap = period2.getStarts().compareTo(period1.getEnds()) <= 0 && period2.getEnds().compareTo(period1.getStarts()) >= 0;
+		
+		if(timeOverlap) {
+			if(period1.isMonday() && period2.isMonday()) {
+				result = false;
+			}
+			if(period1.isTuesday() && period2.isTuesday()) {
+				result = false;
+			}
+			if(period1.isWednesday() && period2.isWednesday()) {
+				result = false;
+			}
+			if(period1.isThursday() && period2.isThursday()) {
+				result = false;
+			}
+			if(period1.isFriday() && period2.isFriday()) {
+				result = false;
+			}
+		} 
+		
+		return result;
 	}
 
 }

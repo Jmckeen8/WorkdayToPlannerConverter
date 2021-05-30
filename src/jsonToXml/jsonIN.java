@@ -117,12 +117,22 @@ public class jsonIN {
 			
 			//section details
 			
+			//lists to gather like sections
+			ArrayList<section> lectures = new ArrayList<section>();
+			ArrayList<section> conferences = new ArrayList<section>();
+			ArrayList<section> labs = new ArrayList<section>();
+			
 			for (int i = 0; i < allSectionsThisCourseTerm.size(); i++) { //for all course sections
 				JSONObject thisSection = (JSONObject) allSectionsThisCourseTerm.get(i);
 				
 				//section number
 				String thisCourseSectionFull = (String) thisSection.get("Course_Section");
-				String thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 1) - 1);
+				String thisSectionNum;
+				if(thisCourseSectionFull.contains("-Quiz")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				} else {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 1) - 1);
+				}
 				
 				//seats available and total seats
 				String enrolledCapacityString = (String) thisSection.get("Enrolled_Capacity");
@@ -144,8 +154,18 @@ public class jsonIN {
 					termActual = term;
 				}
 				
+				//Section cluster (if exists)
+				section newSection;
+				if(thisSection.get("Student_Course_Section_Cluster") != null) {
+					String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
+					String clusterLetter = fullClusterString.substring(fullClusterString.indexOf("(") + 1, fullClusterString.indexOf(")"));
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter);
+				}else {
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual);
+				}
+				
 				//build new section object
-				section newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual);
+				
 				
 				//COMMON PERIOD ATTRIBUTES
 				
@@ -248,8 +268,40 @@ public class jsonIN {
 					newSection.getPeriods().add(newPeriod);
 				}
 				
-				newCourse.getSections().add(newSection);
+				//INTERRUPT
 				
+				if(plannerType.equals("Lecture")) {
+					lectures.add(newSection);
+				}
+				else if(plannerType.equals("Conference")) {
+					conferences.add(newSection);
+				}
+				else if(plannerType.equals("Lab")) {
+					labs.add(newSection);
+				}else {
+					newCourse.getSections().add(newSection);
+				}
+				
+			}
+			
+			//SECTION COMBINER STARTS HERE
+			
+			if(lectures.isEmpty() && !labs.isEmpty()) {   //if the class ONLY has labs (of which there are a few)
+				for (section lab : labs) {
+					newCourse.getSections().add(lab);
+				}
+			}else {
+				//use lectures as our foundation, branch off from them
+				for (section lecture : lectures) {
+					String lectureCluster = lecture.getNote();
+					if(!conferences.isEmpty()) {  //if there are conferences
+						for (section conference : conferences) {
+							
+						}
+					} else {  //there are lectures and labs ONLY
+						
+					}
+				}
 			}
 			
 			
@@ -260,6 +312,86 @@ public class jsonIN {
 			}
 		}
 		
+	}
+	
+	
+	//method takes a list of sections and combines them into one section for planner to display as a group
+	public section combiner(ArrayList<section> sections) {
+		long crn = sections.get(0).getCrn();
+		
+		String number = "";
+		for(section section : sections) {
+			number = number + section.getNumber() + "/";
+		}
+		number = number.substring(0, number.length() - 1);  //chop off last "/"
+		
+		int seats = 10000;
+		for (section section: sections) {
+			if(section.getSeats() < seats) {
+				seats = section.getSeats();
+			}
+		}
+		
+		long availableSeats = 10000;
+		for (section section: sections) {
+			if(section.getAvailableseats() < availableSeats) {
+				availableSeats = section.getAvailableseats();
+			}
+		}
+		
+		int maxWaitlist = 10000;
+		for (section section: sections) {
+			if(section.getMaxWaitlist() < maxWaitlist) {
+				maxWaitlist = section.getMaxWaitlist();
+			}
+		}
+		
+		long actualWaitlist = 10000;
+		for (section section: sections) {
+			if(section.getActualWaitlist() < actualWaitlist) {
+				actualWaitlist = section.getActualWaitlist();
+			}
+		}
+		
+		String term = sections.get(0).getTerm();
+		String partOfTerm = sections.get(0).getPartOfTerm();
+		
+		section result = new section(crn, number, seats, availableSeats, maxWaitlist, actualWaitlist, term, partOfTerm);
+		
+		for (section section : sections) {
+			ArrayList<period> thisSectionPeriods = section.getPeriods();
+			for (period period : thisSectionPeriods) {
+				section.getPeriods().add(period);
+			}
+		}
+		
+		
+		return result;
+	}
+	
+	//checks if the sections in the list are "compatible" with each other
+	//sections are "compatible" if they a) adhere to cluster rules, if any exist AND b) don't time conflict with each other
+	//returns TRUE if sections work well together, FALSE otherwise
+	public boolean conflictChecker(ArrayList<section> sections) {
+		
+		//check if cluster requirements are met
+		boolean goodCluster = true;
+		String cluster = "";
+		for (section section : sections) {
+			if (!(section.getNote().isEmpty())) {   //if this section has a cluster
+				if(cluster.isEmpty()) {
+					cluster = section.getNote();
+				}else {   //cluster assignment already exists, check
+					if(!(cluster.equals(section.getNote()))) {  //if the clusters do not match
+						goodCluster = false;
+					}
+				}
+			}
+		}
+		
+		
+		
+		return true;
 	}
 
 }

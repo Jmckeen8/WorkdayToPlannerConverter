@@ -102,6 +102,7 @@ public class jsonIN {
 				courseDesc = courseDesc.replace("â€”", "—");
 				courseDesc = courseDesc.replace("â€“", "–");
 				courseDesc = courseDesc.replace("&#43;", "+");
+				courseDesc = courseDesc.replace("â€¢", "•");
 				//courseDesc = courseDescRaw;
 			}else {
 				courseDesc = courseDescRaw;

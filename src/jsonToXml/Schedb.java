@@ -12,7 +12,7 @@ public class Schedb {
 	
 	Schedb(){
 		departments = new ArrayList<dept>();
-		generated = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+		generated = new SimpleDateFormat("h:mm a MMM d, YYYY").format(new Date());
 		minutesPerBlock = 30;
 		generateAllDepartments();
 	}

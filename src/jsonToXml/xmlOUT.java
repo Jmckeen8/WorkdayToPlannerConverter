@@ -96,6 +96,13 @@ public class xmlOUT {
 							period.setAttribute("building", thisPeriod.getBuilding());
 							period.setAttribute("room", thisPeriod.getRoom());
 							
+							period.setAttribute("seats", String.valueOf(thisPeriod.getSeats()));
+							period.setAttribute("availableseats", String.valueOf(thisPeriod.getAvailableseats()));
+							period.setAttribute("max_waitlist", String.valueOf(thisPeriod.getMaxWaitlist()));
+							period.setAttribute("actual_waitlist", String.valueOf(thisPeriod.getActualWaitlist()));
+							
+							period.setAttribute("section", String.valueOf(thisPeriod.getSpecificSection()));
+							
 							section.appendChild(period);
 							
 						}

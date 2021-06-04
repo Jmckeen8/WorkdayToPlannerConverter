@@ -121,7 +121,7 @@ public class jsonIN {
 			
 			//lists to gather like sections
 			ArrayList<section> lectures = new ArrayList<section>();
-			ArrayList<section> conferences = new ArrayList<section>();
+			ArrayList<section> discussions = new ArrayList<section>();
 			ArrayList<section> labs = new ArrayList<section>();
 			
 			for (int i = 0; i < allSectionsThisCourseTerm.size(); i++) { //for all course sections
@@ -192,7 +192,7 @@ public class jsonIN {
 				String workdayType = (String) thisSection.get("Instructional_Format");
 				String plannerType = "";
 				if(workdayType.equals("Discussion")) {
-					plannerType = "Conference";
+					plannerType = "Discussion";
 				}else if(workdayType.equals("Laboratory")) {
 					plannerType = "Lab";
 				}else if(workdayType.equals("Workshop")) {
@@ -283,7 +283,7 @@ public class jsonIN {
 						}
 					}
 					
-					period newPeriod = new period(plannerType, thisProfessor, monday, tuesday, wednesday, thursday, friday, startTime, endTime, thisLocation);
+					period newPeriod = new period(plannerType, thisProfessor, monday, tuesday, wednesday, thursday, friday, startTime, endTime, thisLocation, capacity, availableSeats, waitlistTotal, waitlistActual, thisSectionNum);
 					newSection.getPeriods().add(newPeriod);
 				}
 				
@@ -292,8 +292,8 @@ public class jsonIN {
 				if(plannerType.equals("Lecture")) {
 					lectures.add(newSection);
 				}
-				else if(plannerType.equals("Conference")) {
-					conferences.add(newSection);
+				else if(plannerType.equals("Discussion")) {
+					discussions.add(newSection);
 				}
 				else if(plannerType.equals("Lab")) {
 					labs.add(newSection);
@@ -305,7 +305,7 @@ public class jsonIN {
 			
 			//SECTION COMBINER STARTS HERE
 			
-			if(!lectures.isEmpty() && labs.isEmpty() && conferences.isEmpty()) {
+			if(!lectures.isEmpty() && labs.isEmpty() && discussions.isEmpty()) {
 				for (section lecture : lectures) {
 					newCourse.getSections().add(lecture);
 				}
@@ -320,23 +320,23 @@ public class jsonIN {
 					if(lecture.isGPS() && lecture.getNote()==null) {  //if lecture is a GPS and not part of a cluster
 						newCourse.getSections().add(lecture);
 					}else {
-						if(!conferences.isEmpty()) {  //if there are conferences
-							for (section conference : conferences) {
-								if(!labs.isEmpty()) {  //there are labs along with lectures and conferences
+						if(!discussions.isEmpty()) {  //if there are discussions
+							for (section discussion : discussions) {
+								if(!labs.isEmpty()) {  //there are labs along with lectures and discussions
 									for (section lab : labs) {
 										ArrayList<section> sections = new ArrayList<section>();
 										sections.add(lecture);
-										sections.add(conference);
+										sections.add(discussion);
 										sections.add(lab);
 										if(conflictChecker(sections)) {  //if sections are ok
 											section combined = combiner(sections);
 											newCourse.getSections().add(combined);
 										}
 									}
-								}else {  //just lectures and conferences, no labs
+								}else {  //just lectures and discussions, no labs
 									ArrayList<section> sections = new ArrayList<section>();
 									sections.add(lecture);
-									sections.add(conference);
+									sections.add(discussion);
 									if(conflictChecker(sections)) {  //if sections are ok
 										section combined = combiner(sections);
 										newCourse.getSections().add(combined);

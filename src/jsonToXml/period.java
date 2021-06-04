@@ -13,8 +13,13 @@ public class period {
 	private Date ends; //looks like "10:50AM"
 	private String building; //leave blank
 	private String room;
+	private int seats;   //total seats
+	private long availableseats;  //available seats
+	private int maxWaitlist;
+	private long actualWaitlist;
+	private String specificSection;
 	
-	period(String type, String professor, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, Date starts, Date ends, String room){
+	period(String type, String professor, boolean monday, boolean tuesday, boolean wednesday, boolean thursday, boolean friday, Date starts, Date ends, String room, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String specificSection){
 		this.type = type;
 		this.professor = professor;
 		this.professorSortName = professor;
@@ -28,6 +33,11 @@ public class period {
 		this.ends = ends;
 		this.building = "";
 		this.room = room;
+		this.seats = seats;
+		this.availableseats = availableseats;
+		this.maxWaitlist = maxWaitlist;
+		this.actualWaitlist = actualWaitlist;
+		this.specificSection = specificSection;
 	}
 
 	public String getType() {
@@ -133,6 +143,46 @@ public class period {
 
 	public void setRoom(String room) {
 		this.room = room;
+	}
+	
+	public int getSeats() {
+		return seats;
+	}
+
+	public void setSeats(int seats) {
+		this.seats = seats;
+	}
+
+	public long getAvailableseats() {
+		return availableseats;
+	}
+
+	public void setAvailableseats(long availableseats) {
+		this.availableseats = availableseats;
+	}
+
+	public int getMaxWaitlist() {
+		return maxWaitlist;
+	}
+
+	public void setMaxWaitlist(int maxWaitlist) {
+		this.maxWaitlist = maxWaitlist;
+	}
+
+	public long getActualWaitlist() {
+		return actualWaitlist;
+	}
+
+	public void setActualWaitlist(long actualWaitlist) {
+		this.actualWaitlist = actualWaitlist;
+	}
+
+	public String getSpecificSection() {
+		return specificSection;
+	}
+
+	public void setSpecificSection(String specificSection) {
+		this.specificSection = specificSection;
 	}
 	
 }

@@ -6,7 +6,10 @@ public class Converter {
 		Schedb schedb = new Schedb();
 		
 		jsonIN jsonIn = new jsonIN();
+		
+		
 		jsonIn.readJSON(schedb);
+		
 		System.out.println("Done JSON in");
 		
 		xmlOUT xmlOut = new xmlOUT();

@@ -222,6 +222,14 @@ public class jsonIN {
 				for (String period : allPeriods) {
 					String[] periodDetails = period.split("\\|");  //index 0: location, index 1: days of week, index 2: time
 					
+					if(periodDetails.length == 2) {    //if there's no location AT ALL in the schedule data for some reason =(
+						String[] periodDetailsNew = new String[3];
+						periodDetailsNew[2] = periodDetails[1];
+						periodDetailsNew[1] = periodDetails[0];
+						periodDetailsNew[0] = "Unknown";
+						periodDetails = periodDetailsNew;
+					}
+					
 					//location
 					String thisLocation = periodDetails[0];
 					
@@ -250,9 +258,8 @@ public class jsonIN {
 							friday = true;
 						}
 						
-						//time
-						
 						String startTimeString = periodDetails[2].substring(1, periodDetails[2].indexOf("-") - 1);
+						
 						try {
 							startTime = new SimpleDateFormat("hh:mm aa").parse(startTimeString);
 						} catch (java.text.ParseException e) {

@@ -128,6 +128,8 @@ public class jsonIN {
 			for (int i = 0; i < allSectionsThisCourseTerm.size(); i++) { //for all course sections
 				JSONObject thisSection = (JSONObject) allSectionsThisCourseTerm.get(i);
 				
+				boolean isGPSorST = false;  //course is GPS or Special Topics
+				
 				//section number
 				String thisCourseSectionFull = (String) thisSection.get("Course_Section");
 				String thisSectionNum;
@@ -135,8 +137,9 @@ public class jsonIN {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				}else if(thisCourseSectionFull.contains("-Y")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("GPS:")) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf(":") - 6);
+				}else if(thisCourseSectionFull.contains("GPS:") || thisCourseSectionFull.contains("- ST:") || thisCourseSectionFull.contains("- SP:") || thisCourseSectionFull.contains("- AT:")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
+					isGPSorST = true;
 				}else {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 1) - 1);
 				}
@@ -180,7 +183,8 @@ public class jsonIN {
 				//build new section object ^^^^
 				
 				//add GPS boolean
-				if(currSecDept.equals("FY") && (courseNum.equals("1100") || courseNum.equals("1101"))) {
+				//6/8/2021: Adjusting GPS boolean to include special topics courses, since they require the same type of treatment
+				if(isGPSorST) {
 					newSection.setGPS(true);
 				}else {
 					newSection.setGPS(false);
@@ -383,10 +387,20 @@ public class jsonIN {
 		long crn = sections.get(0).getCrn();
 		
 		String number = "";
-		for(section section : sections) {
-			number = number + section.getNumber() + "/";
+		for(int i = 0; i < sections.size() - 1; i++) {  //every section except the last one
+			section section = sections.get(i);
+			
+			String secNumber = "";
+			if(section.isGPS()) {   //if it is a GPS or special topics and NOT the last one being combined, remove the extra labeling
+				secNumber = section.getNumber().substring(0, section.getNumber().indexOf("-") - 1);
+			}else {
+				secNumber = section.getNumber();
+			}
+			
+			number = number + secNumber + "/";
 		}
-		number = number.substring(0, number.length() - 1);  //chop off last "/"
+		
+		number = number + sections.get(sections.size()-1).getNumber();   //get the last section number, FULL NAME
 		
 		int seats = 10000;
 		for (section section: sections) {

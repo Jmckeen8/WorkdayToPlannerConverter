@@ -137,7 +137,8 @@ public class jsonIN {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				}else if(thisCourseSectionFull.contains("-Y")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("GPS:") || thisCourseSectionFull.contains("- ST:") || thisCourseSectionFull.contains("- SP:") || thisCourseSectionFull.contains("- AT:")) {
+				}else if(thisCourseSectionFull.contains("GPS:") || thisCourseSectionFull.contains("- ST:") || thisCourseSectionFull.contains("- SP:") || thisCourseSectionFull.contains("- AT:") 
+						|| thisCourseSectionFull.contains("INQ SEM:") || thisCourseSectionFull.contains("PRAC IN HUA:") || thisCourseSectionFull.contains("PRAC HUA:")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
 					isGPSorST = true;
 				}else {
@@ -183,7 +184,7 @@ public class jsonIN {
 				//build new section object ^^^^
 				
 				//add GPS boolean
-				//6/8/2021: Adjusting GPS boolean to include special topics courses, since they require the same type of treatment
+				//6/8/2021: Adjusting GPS boolean to include special topics courses and humanities capstone courses, since they require the same type of treatment
 				if(isGPSorST) {
 					newSection.setGPS(true);
 				}else {

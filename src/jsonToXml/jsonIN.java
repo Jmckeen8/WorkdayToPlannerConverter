@@ -1,7 +1,9 @@
 package jsonToXml;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,7 +11,6 @@ import java.util.Date;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -18,7 +19,7 @@ public class jsonIN {
 	public void readJSON(Schedb schedb) {
 		JSONParser jsonParser = new JSONParser();
 		
-		try (FileReader reader = new FileReader("prod-data.json")){
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("prod-data.json"), "UTF-8"))){
 			Object obj = jsonParser.parse(reader);
 			
 			JSONObject reportEntry = (JSONObject) obj;
@@ -81,12 +82,8 @@ public class jsonIN {
 			dept dummyDept = new dept(currSecDept);
 			
 			int subjectIndexInDepartments = departments.indexOf(dummyDept);  //index of department of course in departments list
-			dept department = null;
-			try {
-				department = departments.get(subjectIndexInDepartments);  //specific department object
-			}catch(Exception e) {
-				System.out.println("HELP");
-			}
+			
+			dept department = departments.get(subjectIndexInDepartments);  //specific department object
 			
 			//get details for course object
 			String courseNum = currSectionCourseSubjNum.substring(currSectionCourseSubjNum.indexOf(" ") + 1, currSectionCourseSubjNum.length());
@@ -98,16 +95,16 @@ public class jsonIN {
 			if(courseDescRaw != null) {
 				courseDesc = courseDescRaw.replaceAll("\\<[^>]*>", " ");
 				courseDesc = courseDesc.replace("&amp;", "&");
-				courseDesc = courseDesc.replace("â€™", "'");
-				courseDesc = courseDesc.replace("â€˜", "'");
+				//courseDesc = courseDesc.replace("â€™", "'");
+				//courseDesc = courseDesc.replace("â€˜", "'");
 				courseDesc = courseDesc.replace("&#39;", "'");
-				courseDesc = courseDesc.replace("â€œ", "\"");
-				courseDesc = courseDesc.replace("â€�", "\"");
-				courseDesc = courseDesc.replace("Â", " ");
-				courseDesc = courseDesc.replace("â€”", "—");
-				courseDesc = courseDesc.replace("â€“", "–");
+				//courseDesc = courseDesc.replace("â€œ", "\"");
+				//courseDesc = courseDesc.replace("â€�", "\"");
+				//courseDesc = courseDesc.replace("Â", " ");
+				//courseDesc = courseDesc.replace("â€”", "—");
+				//courseDesc = courseDesc.replace("â€“", "–");
 				courseDesc = courseDesc.replace("&#43;", "+");
-				courseDesc = courseDesc.replace("â€¢", "•");
+				//courseDesc = courseDesc.replace("â€¢", "•");
 				courseDesc = courseDesc.replace("&#34;", "\"");
 				//courseDesc = courseDescRaw;
 			}else {

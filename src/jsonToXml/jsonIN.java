@@ -81,7 +81,12 @@ public class jsonIN {
 			dept dummyDept = new dept(currSecDept);
 			
 			int subjectIndexInDepartments = departments.indexOf(dummyDept);  //index of department of course in departments list
-			dept department = departments.get(subjectIndexInDepartments);  //specific department object
+			dept department = null;
+			try {
+				department = departments.get(subjectIndexInDepartments);  //specific department object
+			}catch(Exception e) {
+				System.out.println("HELP");
+			}
 			
 			//get details for course object
 			String courseNum = currSectionCourseSubjNum.substring(currSectionCourseSubjNum.indexOf(" ") + 1, currSectionCourseSubjNum.length());

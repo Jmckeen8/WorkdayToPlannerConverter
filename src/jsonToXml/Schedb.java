@@ -75,7 +75,10 @@ public class Schedb {
 		departments.add(new dept("RE", "Religion"));
 		departments.add(new dept("SD", "System Dynamics"));
 		departments.add(new dept("SEME", "STEM for Educators"));
+		departments.add(new dept("SOC", "Sociology"));
 		departments.add(new dept("SP", "Spanish"));
+		departments.add(new dept("SS", "Social Science"));
+		departments.add(new dept("STS", "Society-Technology Studies"));
 		departments.add(new dept("SYS", "Systems Engineering"));
 		departments.add(new dept("TH", "Theatre"));
 		departments.add(new dept("WR", "Writing"));

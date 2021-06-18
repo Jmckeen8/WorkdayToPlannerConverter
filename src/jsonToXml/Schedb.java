@@ -67,6 +67,7 @@ public class Schedb {
 		departments.add(new dept("NSE", "Nuclear Science & Engineering"));
 		departments.add(new dept("OBC", "Organizational Behavior & Change"));
 		departments.add(new dept("OIE", "Operations & Industrial Engineering"));
+		departments.add(new dept("OT", "Other"));
 		departments.add(new dept("PE", "Physical Education"));
 		departments.add(new dept("PH", "Physics"));
 		departments.add(new dept("PSY", "Psychology"));

@@ -83,7 +83,16 @@ public class jsonIN {
 			
 			int subjectIndexInDepartments = departments.indexOf(dummyDept);  //index of department of course in departments list
 			
-			dept department = departments.get(subjectIndexInDepartments);  //specific department object
+			dept department = null;
+			
+			try {
+				department = departments.get(subjectIndexInDepartments);  //specific department object
+			}catch(Exception e) {
+				dept dummyOther = new dept("OT");
+				int indexOther = departments.indexOf(dummyOther);
+				department = departments.get(indexOther);
+			}
+			
 			
 			//get details for course object
 			String courseNum = currSectionCourseSubjNum.substring(currSectionCourseSubjNum.indexOf(" ") + 1, currSectionCourseSubjNum.length());
@@ -140,7 +149,7 @@ public class jsonIN {
 				}else if(thisCourseSectionFull.contains("-Y")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				}else if(thisCourseSectionFull.contains("GPS:") || thisCourseSectionFull.contains("- ST:") || thisCourseSectionFull.contains("- SP:") || thisCourseSectionFull.contains("- AT:") 
-						|| thisCourseSectionFull.contains("INQ SEM:") || thisCourseSectionFull.contains("PRAC IN HUA:") || thisCourseSectionFull.contains("PRAC HUA:")) {
+						|| thisCourseSectionFull.contains("INQ SEM:") || thisCourseSectionFull.contains("PRAC IN HUA:") || thisCourseSectionFull.contains("PRAC HUA:") || (currSecDept.equals("ID") && courseNum.equals("2050"))) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
 					isGPSorST = true;
 				}else {
@@ -171,6 +180,14 @@ public class jsonIN {
 					termActual = "C Term, D Term";
 				}else {
 					termActual = term;
+				}
+				
+				String offeringPeriod = (String) thisSection.get("Offering_Period");
+				if(offeringPeriod.equals("08/25/2021-10/13/2021")) {
+					termActual = "A Term";
+				}
+				if(offeringPeriod.equals("10/20/2021-12/10/2021")) {
+					termActual = "B Term";
 				}
 				
 				//Section cluster (if exists)

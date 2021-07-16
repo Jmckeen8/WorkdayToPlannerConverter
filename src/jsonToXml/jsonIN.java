@@ -98,7 +98,13 @@ public class jsonIN {
 			String courseNum = currSectionCourseSubjNum.substring(currSectionCourseSubjNum.indexOf(" ") + 1, currSectionCourseSubjNum.length());
 			
 			String courseTitleFull = (String) currSection.get("Course_Title");
-			String courseName = courseTitleFull.substring(courseTitleFull.indexOf("-") + 2, courseTitleFull.length());
+			String courseName = "";
+			try {
+				courseName = courseTitleFull.substring(courseTitleFull.indexOf("-") + 2, courseTitleFull.length());
+			} catch (Exception e) {
+				courseName = currSectionCourseSection.substring(currSectionCourseSection.indexOf("- ") + 2);
+			}
+			
 			String courseDescRaw = (String) currSection.get("Course_Description");
 			String courseDesc;
 			if(courseDescRaw != null) {
@@ -156,6 +162,7 @@ public class jsonIN {
 						|| thisCourseSectionFull.contains("PRAC IN HUA:") 
 						|| thisCourseSectionFull.contains("PRAC HUA:")
 						|| thisCourseSectionFull.contains("- Topics In")
+						|| thisCourseSectionFull.contains("History:")
 						|| (currSecDept.equals("ID") && courseNum.equals("2050"))) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
 					isGPSorST = true;

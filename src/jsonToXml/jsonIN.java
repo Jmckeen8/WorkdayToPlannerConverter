@@ -152,6 +152,8 @@ public class jsonIN {
 				String thisSectionNum;
 				if(thisCourseSectionFull.contains("-Quiz")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				}else if(thisCourseSectionFull.contains("-Multipurpose")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				}else if(thisCourseSectionFull.contains("-Y")) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				}else if(thisCourseSectionFull.contains("GPS:") 

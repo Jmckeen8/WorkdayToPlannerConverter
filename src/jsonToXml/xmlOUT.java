@@ -54,6 +54,7 @@ public class xmlOUT {
 						section.setAttribute("actual_waitlist", String.valueOf(thisSection.getActualWaitlist()));
 						section.setAttribute("term", thisSection.getTerm());
 						section.setAttribute("part-of-term", thisSection.getPartOfTerm());
+						section.setAttribute("sec_desc", thisSection.getDescription());
 						
 						for (period thisPeriod : thisSection.getPeriods()) {
 							Element period = doc.createElement("period");

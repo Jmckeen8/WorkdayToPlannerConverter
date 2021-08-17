@@ -14,8 +14,9 @@ public class section {
 	private String partOfTerm;  //"A Term", "B Term", or "A Term, B Term" for semester courses
 	private String note;
 	private boolean isGPS;
+	private String description;
 	
-	section(long crn, String number, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String term, String partOfTerm){
+	section(long crn, String number, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String term, String partOfTerm, String description){
 		periods = new ArrayList<period>();
 		this.crn = crn;
 		this.number = number;
@@ -25,9 +26,10 @@ public class section {
 		this.actualWaitlist = actualWaitlist;
 		this.term = term;
 		this.partOfTerm = partOfTerm;
+		this.description = description;
 	}
 	
-	section(long crn, String number, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String term, String partOfTerm, String note){
+	section(long crn, String number, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String term, String partOfTerm, String note, String description){
 		periods = new ArrayList<period>();
 		this.crn = crn;
 		this.number = number;
@@ -38,6 +40,7 @@ public class section {
 		this.term = term;
 		this.partOfTerm = partOfTerm;
 		this.note = note;
+		this.description = description;
 	}
 
 	public ArrayList<period> getPeriods() {
@@ -126,6 +129,14 @@ public class section {
 
 	public void setGPS(boolean isGPS) {
 		this.isGPS = isGPS;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	

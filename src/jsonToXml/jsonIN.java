@@ -81,13 +81,15 @@ public class jsonIN {
 			String currSecDept = currSectionCourseSection.substring(0, currSectionCourseSection.indexOf(" "));
 			dept dummyDept = new dept(currSecDept);
 			
+			//try to find the department for this section
+			
 			int subjectIndexInDepartments = departments.indexOf(dummyDept);  //index of department of course in departments list
 			
 			dept department = null;
 			
 			try {
 				department = departments.get(subjectIndexInDepartments);  //specific department object
-			}catch(Exception e) {
+			}catch(Exception e) {  //if this department doesn't exist in the department list, give it a new department of "Other"/"OT"
 				dept dummyOther = new dept("OT");
 				int indexOther = departments.indexOf(dummyOther);
 				department = departments.get(indexOther);
@@ -105,23 +107,19 @@ public class jsonIN {
 				courseName = currSectionCourseSection.substring(currSectionCourseSection.indexOf("- ") + 2);
 			}
 			
-			String courseDescRaw = (String) currSection.get("Course_Description");
+			String courseDescRaw = (String) currSection.get("Course_Description");  //course description for first section used for whole course by default
 			String courseDesc;
-			if(courseDescRaw != null) {
+			if(currSecDept.equals("CS") && courseNum.equals("525")) {
+				courseDesc = "A topic of current interest is covered in detail. Consult the course descriptions for each individual "
+						+ "section for more information about each topic (in this planner, add the course to your schedule and then "
+						+ "click on each section to see descriptions). (Prerequisites: vary with topic)";
+			}
+			else if(courseDescRaw != null) {
 				courseDesc = courseDescRaw.replaceAll("\\<[^>]*>", " ");
 				courseDesc = courseDesc.replace("&amp;", "&");
-				//courseDesc = courseDesc.replace("â€™", "'");
-				//courseDesc = courseDesc.replace("â€˜", "'");
 				courseDesc = courseDesc.replace("&#39;", "'");
-				//courseDesc = courseDesc.replace("â€œ", "\"");
-				//courseDesc = courseDesc.replace("â€�", "\"");
-				//courseDesc = courseDesc.replace("Â", " ");
-				//courseDesc = courseDesc.replace("â€”", "—");
-				//courseDesc = courseDesc.replace("â€“", "–");
 				courseDesc = courseDesc.replace("&#43;", "+");
-				//courseDesc = courseDesc.replace("â€¢", "•");
 				courseDesc = courseDesc.replace("&#34;", "\"");
-				//courseDesc = courseDescRaw;
 			}else {
 				courseDesc = courseDescRaw;
 			}
@@ -206,14 +204,27 @@ public class jsonIN {
 					termActual = "B Term";
 				}
 				
+				//establishing the course description for *this particular section*
+				String secCourseDescRaw = (String) thisSection.get("Course_Description");  //course description for first section used for whole course by default
+				String secCourseDesc;
+				if(secCourseDescRaw != null) {
+					secCourseDesc = secCourseDescRaw.replaceAll("\\<[^>]*>", " ");
+					secCourseDesc = secCourseDesc.replace("&amp;", "&");
+					secCourseDesc = secCourseDesc.replace("&#39;", "'");
+					secCourseDesc = secCourseDesc.replace("&#43;", "+");
+					secCourseDesc = secCourseDesc.replace("&#34;", "\"");
+				}else {
+					secCourseDesc = secCourseDescRaw;
+				}
+				
 				//Section cluster (if exists)
 				section newSection;
 				if(thisSection.get("Student_Course_Section_Cluster") != null) {
 					String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
 					String clusterLetter = fullClusterString.substring(fullClusterString.indexOf("(") + 1, fullClusterString.indexOf(")"));
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter);
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
 				}else {
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual);
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
 				}
 				
 				//build new section object ^^^^
@@ -421,6 +432,7 @@ public class jsonIN {
 	//method takes a list of sections and combines them into one section for planner to display as a group
 	public section combiner(ArrayList<section> sections) {
 		long crn = sections.get(0).getCrn();
+		String description = sections.get(0).getDescription();
 		
 		String number = "";
 		for(int i = 0; i < sections.size() - 1; i++) {  //every section except the last one
@@ -469,7 +481,7 @@ public class jsonIN {
 		String term = sections.get(0).getTerm();
 		String partOfTerm = sections.get(0).getPartOfTerm();
 		
-		section result = new section(crn, number, seats, availableSeats, maxWaitlist, actualWaitlist, term, partOfTerm);
+		section result = new section(crn, number, seats, availableSeats, maxWaitlist, actualWaitlist, term, partOfTerm, description);
 		
 		for (section section : sections) {
 			ArrayList<period> thisSectionPeriods = section.getPeriods();

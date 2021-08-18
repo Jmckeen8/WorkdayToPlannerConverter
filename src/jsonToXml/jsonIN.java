@@ -156,6 +156,7 @@ public class jsonIN {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				}else if(thisCourseSectionFull.contains("GPS:") 
 						|| thisCourseSectionFull.contains("- ST:") 
+						|| thisCourseSectionFull.contains("- ST -")
 						|| thisCourseSectionFull.contains("- SP:") 
 						|| thisCourseSectionFull.contains("- AT:") 
 						|| thisCourseSectionFull.contains("INQ SEM:") 

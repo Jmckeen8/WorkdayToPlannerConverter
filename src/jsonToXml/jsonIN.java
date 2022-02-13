@@ -44,12 +44,12 @@ public class jsonIN {
 	
 	public boolean isValidAcademicPeriod(String period) {
 		if(
-				!(period.equals("2021 Fall A Term"))
-				&& !(period.equals("2021 Fall B Term"))
-				&& !(period.equals("2022 Spring C Term"))
-				&& !(period.equals("2022 Spring D Term"))
-				&& !(period.equals("2021 Fall Semester"))
-				&& !(period.equals("2022 Spring Semester"))
+				!(period.equals("2022 Fall A Term"))
+				&& !(period.equals("2022 Fall B Term"))
+				&& !(period.equals("2023 Spring C Term"))
+				&& !(period.equals("2023 Spring D Term"))
+				&& !(period.equals("2022 Fall Semester"))
+				&& !(period.equals("2023 Spring Semester"))
 				) {
 			return false;
 		}else {

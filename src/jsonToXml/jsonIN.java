@@ -38,12 +38,37 @@ public class jsonIN {
 		
 	}
 	
+	/* TO UPDATE THIS TOOL FOR A NEW ACADMEIC YEAR:
+	 * Modify the list in the below function!
+	 * The terms in the list should match the values given in the "Offering_Period" field of the Workday JSON data */
+	
+	public boolean isValidAcademicPeriod(String period) {
+		if(
+				!(period.equals("2021 Fall A Term"))
+				&& !(period.equals("2021 Fall B Term"))
+				&& !(period.equals("2022 Spring C Term"))
+				&& !(period.equals("2022 Spring D Term"))
+				&& !(period.equals("2021 Fall Semester"))
+				&& !(period.equals("2022 Spring Semester"))
+				) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+	
 	public void processJSON(JSONArray courseList, Schedb schedb) {
 		boolean cont = true;
 		int index = 0;
 		while (cont) {
+			JSONObject currSection;
+			try {
+				currSection = (JSONObject) courseList.get(index);
+			}catch(Exception e) {
+				cont = false;
+				break;
+			}
 			
-			JSONObject currSection = (JSONObject) courseList.get(index);
 			JSONArray allSectionsThisCourseTerm = new JSONArray(); //array for all sections of a given course in a single term
 			allSectionsThisCourseTerm.add(currSection);
 			
@@ -51,16 +76,37 @@ public class jsonIN {
 			String currSectionCourseSubjNum = currSectionCourseSection.substring(0, currSectionCourseSection.indexOf("-"));
 			String currSectionAcademicPeriod = (String) currSection.get("Starting_Academic_Period_Type");
 			
+			String currSectionAcademicPeriodWithYear = (String) currSection.get("Offering_Period");
+			if(isValidAcademicPeriod(currSectionAcademicPeriodWithYear) == false) {
+				if (index >= courseList.size() - 1) {  //loop exit condition
+					cont = false;
+				} else {
+					index = index + 1;
+				}
+				continue;
+			}
+			
 			int findOthersAddition = 1;  //place of next section we're checking
 			if(index < courseList.size() - 1) {
 				boolean findOthers = true;
 				
 				while(findOthers) {
-					JSONObject nextSection = (JSONObject) courseList.get(index+findOthersAddition);
+					JSONObject nextSection;
+					try{
+						nextSection = (JSONObject) courseList.get(index+findOthersAddition);
+					}catch (Exception e) {
+						findOthers = false;
+						break;
+					}
 					
 					String nextSectionCourseSection = (String) nextSection.get("Course_Section");  //Course_Section from json
 					String nextSectionCourseSubjNum = nextSectionCourseSection.substring(0, nextSectionCourseSection.indexOf("-"));
 					String nextSectionAcademicPeriod = (String) nextSection.get("Starting_Academic_Period_Type");
+					
+					String nextSectionAcademicPeriodWithYear = (String) nextSection.get("Offering_Period");
+					if(isValidAcademicPeriod(nextSectionAcademicPeriodWithYear) == false) {
+						break;
+					}
 					
 					if(nextSectionCourseSubjNum.equals(currSectionCourseSubjNum) && nextSectionAcademicPeriod.equals(currSectionAcademicPeriod)) {
 						allSectionsThisCourseTerm.add(nextSection);
@@ -197,13 +243,6 @@ public class jsonIN {
 					termActual = term;
 				}
 				
-				String offeringPeriod = (String) thisSection.get("Offering_Period");
-				if(offeringPeriod.equals("08/25/2021-10/13/2021")) {
-					termActual = "A Term";
-				}
-				if(offeringPeriod.equals("10/20/2021-12/10/2021")) {
-					termActual = "B Term";
-				}
 				
 				//establishing the course description for *this particular section*
 				String secCourseDescRaw = (String) thisSection.get("Course_Description");  //course description for first section used for whole course by default

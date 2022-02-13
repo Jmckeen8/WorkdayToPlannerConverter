@@ -32,6 +32,7 @@ public class Schedb {
 		departments.add(new dept("CHE", "Chemical Engineering"));
 		departments.add(new dept("CN", "Chinese"));
 		departments.add(new dept("CS", "Computer Science"));
+		departments.add(new dept("CP", "Co-op"));
 		departments.add(new dept("DEV", "Development"));
 		departments.add(new dept("DS", "Data Science"));
 		departments.add(new dept("ECE", "Electrical & Computer Engineering"));
@@ -39,6 +40,7 @@ public class Schedb {
 		departments.add(new dept("EN", "English"));
 		departments.add(new dept("ENV", "Environmental Studies"));
 		departments.add(new dept("ES", "Engineering Science"));
+		departments.add(new dept("ESL", "English as a Second Language"));
 		departments.add(new dept("ETR", "Entrepreneurship"));
 		departments.add(new dept("FIN", "Finance"));
 		departments.add(new dept("FP", "Fire Protection"));
@@ -63,11 +65,12 @@ public class Schedb {
 		departments.add(new dept("MPE", "Masters for Physics Educators"));
 		departments.add(new dept("MTE", "Materials Science & Engineering"));
 		departments.add(new dept("MU", "Music"));
-		departments.add(new dept("NEU", "Neurology"));
+		departments.add(new dept("NEU", "Neuroscience"));
 		departments.add(new dept("NSE", "Nuclear Science & Engineering"));
 		departments.add(new dept("OBC", "Organizational Behavior & Change"));
 		departments.add(new dept("OIE", "Operations & Industrial Engineering"));
 		departments.add(new dept("OT", "Other"));
+		departments.add(new dept("PC", "Project Center"));
 		departments.add(new dept("PE", "Physical Education"));
 		departments.add(new dept("PH", "Physics"));
 		departments.add(new dept("PSY", "Psychology"));

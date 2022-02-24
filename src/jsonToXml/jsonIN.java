@@ -105,7 +105,8 @@ public class jsonIN {
 					
 					String nextSectionAcademicPeriodWithYear = (String) nextSection.get("Offering_Period");
 					if(isValidAcademicPeriod(nextSectionAcademicPeriodWithYear) == false) {
-						break;
+						findOthersAddition++;
+						continue;
 					}
 					
 					if(nextSectionCourseSubjNum.equals(currSectionCourseSubjNum) && nextSectionAcademicPeriod.equals(currSectionAcademicPeriod)) {

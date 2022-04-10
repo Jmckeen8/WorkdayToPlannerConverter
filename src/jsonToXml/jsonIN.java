@@ -38,19 +38,21 @@ public class jsonIN {
 		
 	}
 	
+	//TODO: Move academic period control to external config file
+	
 	/* TO UPDATE THIS TOOL FOR A NEW ACADMEIC YEAR:
 	 * Modify the list in the below function!
 	 * The terms in the list should match the values given in the "Offering_Period" field of the Workday JSON data */
 	
-	public boolean isValidAcademicPeriod(String period) {
-		if(
+	public boolean isValidAcademicPeriod(String period, String section, String type) {
+		if((   //checking if the section is in a valid academic period and that it's not an interest list discussion or lab period. 
 				!(period.equals("2022 Fall A Term"))
 				&& !(period.equals("2022 Fall B Term"))
 				&& !(period.equals("2023 Spring C Term"))
 				&& !(period.equals("2023 Spring D Term"))
 				&& !(period.equals("2022 Fall Semester"))
 				&& !(period.equals("2023 Spring Semester"))
-				) {
+				) || (section.contains("Interest List") && !(type.equals("Lecture")))) {
 			return false;
 		}else {
 			return true;
@@ -75,9 +77,10 @@ public class jsonIN {
 			String currSectionCourseSection = (String) currSection.get("Course_Section");  //Course_Section from json
 			String currSectionCourseSubjNum = currSectionCourseSection.substring(0, currSectionCourseSection.indexOf("-"));
 			String currSectionAcademicPeriod = (String) currSection.get("Starting_Academic_Period_Type");
+			String currSectionInstructionalFormat = (String) currSection.get("Instructional_Format");
 			
 			String currSectionAcademicPeriodWithYear = (String) currSection.get("Offering_Period");
-			if(isValidAcademicPeriod(currSectionAcademicPeriodWithYear) == false) {
+			if(isValidAcademicPeriod(currSectionAcademicPeriodWithYear, currSectionCourseSection, currSectionInstructionalFormat) == false) {
 				if (index >= courseList.size() - 1) {  //loop exit condition
 					cont = false;
 				} else {
@@ -102,9 +105,10 @@ public class jsonIN {
 					String nextSectionCourseSection = (String) nextSection.get("Course_Section");  //Course_Section from json
 					String nextSectionCourseSubjNum = nextSectionCourseSection.substring(0, nextSectionCourseSection.indexOf("-"));
 					String nextSectionAcademicPeriod = (String) nextSection.get("Starting_Academic_Period_Type");
+					String nextSectionInstructionalFormat = (String) nextSection.get("Instructional_Format");
 					
 					String nextSectionAcademicPeriodWithYear = (String) nextSection.get("Offering_Period");
-					if(isValidAcademicPeriod(nextSectionAcademicPeriodWithYear) == false) {
+					if(isValidAcademicPeriod(nextSectionAcademicPeriodWithYear, nextSectionCourseSection, nextSectionInstructionalFormat) == false) {
 						findOthersAddition++;
 						continue;
 					}
@@ -190,94 +194,13 @@ public class jsonIN {
 			for (int i = 0; i < allSectionsThisCourseTerm.size(); i++) { //for all course sections
 				JSONObject thisSection = (JSONObject) allSectionsThisCourseTerm.get(i);
 				
-				boolean isGPSorST = false;  //course is GPS or Special Topics
-				
 				//section number
 				String thisCourseSectionFull = (String) thisSection.get("Course_Section");
 				String thisSectionNum;
-				if(thisCourseSectionFull.contains("-Quiz")) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("-Multipurpose")) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("-Y")) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("GPS:") 
-						|| thisCourseSectionFull.contains("- ST:") 
-						|| thisCourseSectionFull.contains("- ST -")
-						|| thisCourseSectionFull.contains("- SP:") 
-						|| thisCourseSectionFull.contains("- AT:") 
-						|| thisCourseSectionFull.contains("INQ SEM:") 
-						|| thisCourseSectionFull.contains("PRAC IN HUA:") 
-						|| thisCourseSectionFull.contains("PRAC HUA:")
-						|| thisCourseSectionFull.contains("- Topics In")
-						|| thisCourseSectionFull.contains("History:")
-						|| (currSecDept.equals("ID") && courseNum.equals("2050"))) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
-					isGPSorST = true;
-				}else {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 1) - 1);
-				}
 				
-				if(thisSectionNum.contains("(")) {
-					thisSectionNum = thisSectionNum.substring(0, thisSectionNum.indexOf("(") - 1);
-				}
+				boolean isGPSorST = false;  //course is GPS or Special Topics
 				
-				//seats available and total seats
-				String enrolledCapacityString = (String) thisSection.get("Enrolled_Capacity");
-				int enrolled = Integer.parseInt(enrolledCapacityString.substring(0, enrolledCapacityString.indexOf("/")));
-				int capacity = Integer.parseInt(enrolledCapacityString.substring(enrolledCapacityString.indexOf("/") + 1, enrolledCapacityString.length()));
-				int availableSeats = capacity - enrolled;
-				
-				//waitlist capacity and actual
-				String WaitlistCapacityString = (String) thisSection.get("Waitlist_Waitlist_Capacity");
-				int waitlistActual = Integer.parseInt(WaitlistCapacityString.substring(0, WaitlistCapacityString.indexOf("/")));
-				int waitlistTotal = Integer.parseInt(WaitlistCapacityString.substring(WaitlistCapacityString.indexOf("/") + 1, WaitlistCapacityString.length()));
-				
-				//part_of_term
-				String term = (String) thisSection.get("Starting_Academic_Period_Type");
-				String termActual;
-				if(term.equals("Fall")) {
-					termActual = "A Term, B Term";
-				} else if(term.equals("Spring")){
-					termActual = "C Term, D Term";
-				}else {
-					termActual = term;
-				}
-				
-				
-				//establishing the course description for *this particular section*
-				String secCourseDescRaw = (String) thisSection.get("Course_Description");  //course description for first section used for whole course by default
-				String secCourseDesc;
-				if(secCourseDescRaw != null) {
-					secCourseDesc = secCourseDescRaw.replaceAll("\\<[^>]*>", " ");
-					secCourseDesc = secCourseDesc.replace("&amp;", "&");
-					secCourseDesc = secCourseDesc.replace("&#39;", "'");
-					secCourseDesc = secCourseDesc.replace("&#43;", "+");
-					secCourseDesc = secCourseDesc.replace("&#34;", "\"");
-				}else {
-					secCourseDesc = secCourseDescRaw;
-				}
-				
-				//Section cluster (if exists)
-				section newSection;
-				if(thisSection.get("Student_Course_Section_Cluster") != null) {
-					String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
-					String clusterLetter = fullClusterString.substring(fullClusterString.indexOf("(") + 1, fullClusterString.indexOf(")"));
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
-				}else {
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
-				}
-				
-				//build new section object ^^^^
-				
-				//add GPS boolean
-				//6/8/2021: Adjusting GPS boolean to include special topics courses and humanities capstone courses, since they require the same type of treatment
-				if(isGPSorST) {
-					newSection.setGPS(true);
-				}else {
-					newSection.setGPS(false);
-				}
-				
+				boolean isInterestList = false; //course section is an interest list section
 				
 				//COMMON PERIOD ATTRIBUTES
 				
@@ -305,6 +228,117 @@ public class jsonIN {
 					thisProfessor = (String) thisSection.get("Instructors");
 				}
 				//use thisProfessor
+				
+				//part_of_term
+				String term = (String) thisSection.get("Starting_Academic_Period_Type");
+				String termActual;
+				if(term.equals("Fall")) {
+					termActual = "A Term, B Term";
+				} else if(term.equals("Spring")){
+					termActual = "C Term, D Term";
+				}else {
+					termActual = term;
+				}
+				
+				//special section parsing rules for sections
+				
+				if(thisCourseSectionFull.contains("-Quiz")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				}else if(thisCourseSectionFull.contains("-Multipurpose")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				}else if(thisCourseSectionFull.contains("-Y")) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				
+				//Checking to see if this course section belongs to a "special topics" or "Great Problems Seminar" course
+				//If true, this will cause the full course section title to display with the section number
+				
+				}else if(thisCourseSectionFull.contains("GPS:") 
+						|| thisCourseSectionFull.contains("- ST:") 
+						|| thisCourseSectionFull.contains("- ST -")
+						|| thisCourseSectionFull.contains("- SP:") 
+						|| thisCourseSectionFull.contains("- AT:") 
+						//|| thisCourseSectionFull.contains("INQ SEM:") 
+						//|| thisCourseSectionFull.contains("PRAC IN HUA:") 
+						//|| thisCourseSectionFull.contains("PRAC HUA:")
+						|| thisCourseSectionFull.contains("- Topics In")
+						|| thisCourseSectionFull.contains("History:")
+						|| (currSecDept.equals("HU") && courseNum.equals("3900"))
+						|| (currSecDept.equals("HU") && courseNum.equals("3910"))
+						|| (currSecDept.equals("ID") && courseNum.equals("2050"))) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
+					isGPSorST = true;
+					
+				//Checking if this is an interest list section, setting appropriate section name
+				} else if(thisCourseSectionFull.contains("Interest List")){
+					thisSectionNum = "Interest List-" + term;
+					isInterestList = true;
+					
+				}else {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 1) - 1);
+				}
+				
+				if(thisSectionNum.contains("(")) {
+					thisSectionNum = thisSectionNum.substring(0, thisSectionNum.indexOf("(") - 1);
+				}
+				
+				//seats available and total seats
+				String enrolledCapacityString = (String) thisSection.get("Enrolled_Capacity");
+				int enrolled = Integer.parseInt(enrolledCapacityString.substring(0, enrolledCapacityString.indexOf("/")));
+				int capacity = Integer.parseInt(enrolledCapacityString.substring(enrolledCapacityString.indexOf("/") + 1, enrolledCapacityString.length()));
+				int availableSeats = capacity - enrolled;
+				
+				//waitlist capacity and actual
+				String WaitlistCapacityString = (String) thisSection.get("Waitlist_Waitlist_Capacity");
+				int waitlistActual = Integer.parseInt(WaitlistCapacityString.substring(0, WaitlistCapacityString.indexOf("/")));
+				int waitlistTotal = Integer.parseInt(WaitlistCapacityString.substring(WaitlistCapacityString.indexOf("/") + 1, WaitlistCapacityString.length()));
+				
+				//establishing the course description for *this particular section*
+				String secCourseDescRaw = (String) thisSection.get("Course_Description");  //course description for first section used for whole course by default
+				String secCourseDesc;
+				if(secCourseDescRaw != null) {
+					secCourseDesc = secCourseDescRaw.replaceAll("\\<[^>]*>", " ");
+					secCourseDesc = secCourseDesc.replace("&amp;", "&");
+					secCourseDesc = secCourseDesc.replace("&#39;", "'");
+					secCourseDesc = secCourseDesc.replace("&#43;", "+");
+					secCourseDesc = secCourseDesc.replace("&#34;", "\"");
+				}else {
+					secCourseDesc = secCourseDescRaw;
+				}
+				
+				//Section cluster (if exists)
+				section newSection;
+				if(isInterestList) {
+					
+					String clusterLetter = "IntList";
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
+				}
+				else if(thisSection.get("Student_Course_Section_Cluster") != null) {
+					String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
+					String clusterLetter = fullClusterString.substring(fullClusterString.indexOf("(") + 1, fullClusterString.indexOf(")"));
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
+				}else {
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
+				}
+				
+				//build new section object ^^^^
+				
+				//add GPS boolean
+				//6/8/2021: Adjusting GPS boolean to include special topics courses and humanities capstone courses, since they require the same type of treatment
+				if(isGPSorST) {
+					newSection.setGPS(true);
+				}else {
+					newSection.setGPS(false);
+				}
+				
+				//if interest list section, set section boolean to true
+				if(isInterestList) {
+					newSection.setInterestList(true);
+				}else {
+					newSection.setInterestList(false);
+				}
+				
+				
+				
 				
 				//need to build periods
 				String allPeriodsString = (String) thisSection.get("Section_Details");
@@ -417,7 +451,7 @@ public class jsonIN {
 			}else {
 				//use lectures as our foundation, branch off from them
 				for (section lecture : lectures) {
-					if(lecture.isGPS() && lecture.getNote()==null) {  //if lecture is a GPS and not part of a cluster
+					if((lecture.isGPS() && lecture.getNote()==null) || lecture.isInterestList()) {  //if lecture is a GPS and not part of a cluster or is an interest list, isolate and don't combine with other sections
 						newCourse.getSections().add(lecture);
 					}else {
 						if(!discussions.isEmpty()) {  //if there are discussions
@@ -601,7 +635,7 @@ public class jsonIN {
 	public boolean periodConflictChecker(period period1, period period2) {
 		boolean result = true;
 		//assume true if they do overlap
-		boolean timeOverlap = period2.getStarts().compareTo(period1.getEnds()) <= 0 && period2.getEnds().compareTo(period1.getStarts()) >= 0;
+		boolean timeOverlap = period2.getStarts().compareTo(period1.getEnds()) < 0 && period2.getEnds().compareTo(period1.getStarts()) > 0;
 		
 		if(timeOverlap) {
 			if(period1.isMonday() && period2.isMonday()) {

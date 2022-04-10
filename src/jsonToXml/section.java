@@ -15,6 +15,7 @@ public class section {
 	private String note;
 	private boolean isGPS;
 	private String description;
+	private boolean isInterestList;
 	
 	section(long crn, String number, int seats, long availableseats, int maxWaitlist, long actualWaitlist, String term, String partOfTerm, String description){
 		periods = new ArrayList<period>();
@@ -137,6 +138,14 @@ public class section {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isInterestList() {
+		return isInterestList;
+	}
+
+	public void setInterestList(boolean isInterestList) {
+		this.isInterestList = isInterestList;
 	}
 	
 	

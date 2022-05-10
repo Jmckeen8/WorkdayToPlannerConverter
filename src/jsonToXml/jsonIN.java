@@ -5,9 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,6 +17,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class jsonIN {
+	
+	InputStream inputStream;
 	
 	public void readJSON(Schedb schedb) {
 		JSONParser jsonParser = new JSONParser();
@@ -44,22 +48,43 @@ public class jsonIN {
 	 * Modify the list in the below function!
 	 * The terms in the list should match the values given in the "Offering_Period" field of the Workday JSON data */
 	
-	public boolean isValidAcademicPeriod(String period, String section, String type) {
-		if((   //checking if the section is in a valid academic period and that it's not an interest list discussion or lab period. 
-				!(period.equals("2022 Fall A Term"))
-				&& !(period.equals("2022 Fall B Term"))
-				&& !(period.equals("2023 Spring C Term"))
-				&& !(period.equals("2023 Spring D Term"))
-				&& !(period.equals("2022 Fall Semester"))
-				&& !(period.equals("2023 Spring Semester"))
-				) || (section.contains("Interest List") && !(type.equals("Lecture")))) {
-			return false;
-		}else {
-			return true;
+	public boolean isValidAcademicPeriod(String period, String section, String type) throws IOException {
+		try {
+			Properties prop = new Properties();
+			String propFileName = "planner.properties";
+			inputStream = new FileInputStream(propFileName);
+			
+			if (inputStream != null) {
+				prop.load(inputStream);
+			}else {
+				throw new FileNotFoundException("Property file '" + propFileName + "' not found.");
+			}
+			
+			String fallYear = prop.getProperty("FallYear");
+			String springYear = prop.getProperty("SpringYear");
+			
+			if((   //checking if the section is in a valid academic period and that it's not an interest list discussion or lab period. 
+					!(period.equals(fallYear + " Fall A Term"))
+					&& !(period.equals(fallYear + " Fall B Term"))
+					&& !(period.equals(springYear + " Spring C Term"))
+					&& !(period.equals(springYear + " Spring D Term"))
+					&& !(period.equals(fallYear + " Fall Semester"))
+					&& !(period.equals(springYear + " Spring Semester"))
+					) || (section.contains("Interest List") && !(type.equals("Lecture")))) {
+				return false;
+			}else {
+				return true;
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		} finally {
+			inputStream.close();
 		}
+		
+		return false;
 	}
 	
-	public void processJSON(JSONArray courseList, Schedb schedb) {
+	public void processJSON(JSONArray courseList, Schedb schedb) throws IOException {
 		boolean cont = true;
 		int index = 0;
 		while (cont) {

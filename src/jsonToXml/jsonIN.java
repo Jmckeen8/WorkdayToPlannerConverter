@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 
@@ -16,9 +17,18 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+//Please edit "planner.properties" to modify configuration settings
+
 public class jsonIN {
 	
 	InputStream inputStream;
+	
+	//Properties file attributes:
+	String fallYear;
+	String springYear;
+	String[] specialCourses;
+	String[] specialSections;
+	String[] sectionNumberAppendicies;
 	
 	public void readJSON(Schedb schedb) {
 		JSONParser jsonParser = new JSONParser();
@@ -30,6 +40,7 @@ public class jsonIN {
 			
 			JSONArray courseList = (JSONArray) reportEntry.get("Report_Entry");
 			
+			readProperties(); // read properties from planner.properties
 			processJSON(courseList, schedb);
 			
 		} catch (FileNotFoundException e) {
@@ -42,46 +53,59 @@ public class jsonIN {
 		
 	}
 	
-	//TODO: Move academic period control to external config file
-	
-	/* TO UPDATE THIS TOOL FOR A NEW ACADMEIC YEAR:
-	 * Modify the list in the below function!
-	 * The terms in the list should match the values given in the "Offering_Period" field of the Workday JSON data */
-	
-	public boolean isValidAcademicPeriod(String period, String section, String type) throws IOException {
+	public void readProperties() throws IOException{
 		try {
 			Properties prop = new Properties();
 			String propFileName = "planner.properties";
 			inputStream = new FileInputStream(propFileName);
 			
 			if (inputStream != null) {
-				prop.load(inputStream);
+				prop.load(inputStream);;
 			}else {
 				throw new FileNotFoundException("Property file '" + propFileName + "' not found.");
 			}
 			
-			String fallYear = prop.getProperty("FallYear");
-			String springYear = prop.getProperty("SpringYear");
-			
-			if((   //checking if the section is in a valid academic period and that it's not an interest list discussion or lab period. 
-					!(period.equals(fallYear + " Fall A Term"))
-					&& !(period.equals(fallYear + " Fall B Term"))
-					&& !(period.equals(springYear + " Spring C Term"))
-					&& !(period.equals(springYear + " Spring D Term"))
-					&& !(period.equals(fallYear + " Fall Semester"))
-					&& !(period.equals(springYear + " Spring Semester"))
-					) || (section.contains("Interest List") && !(type.equals("Lecture")))) {
-				return false;
-			}else {
-				return true;
-			}
+			this.fallYear = prop.getProperty("FallYear");
+			this.springYear = prop.getProperty("SpringYear");
+			this.specialCourses = prop.getProperty("SpecialCourses").split(",");
+			this.specialSections = prop.getProperty("SpecialSections").split(",");
+			this.sectionNumberAppendicies = prop.getProperty("SectionNumberAppendicies").split(",");
 		} catch (Exception e) {
 			System.out.println(e);
 		} finally {
 			inputStream.close();
 		}
-		
-		return false;
+	}
+	
+	
+	public boolean isValidAcademicPeriod(String period, String section, String type) throws IOException {	
+		if((   //checking if the section is in a valid academic period and that it's not an interest list discussion or lab period. 
+				!(period.equals(fallYear + " Fall A Term"))
+				&& !(period.equals(fallYear + " Fall B Term"))
+				&& !(period.equals(springYear + " Spring C Term"))
+				&& !(period.equals(springYear + " Spring D Term"))
+				&& !(period.equals(fallYear + " Fall Semester"))
+				&& !(period.equals(springYear + " Spring Semester"))
+				) || (section.contains("Interest List") && !(type.equals("Lecture")))) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+	
+	//checks if the given full section name is defined as "special" per planner.properties
+	public boolean checkSpecialSection(String sectionNameFull) {
+		return Arrays.stream(specialSections).anyMatch(sectionNameFull::contains);
+	}
+	
+	//checks if the given course (subject and number) is defined as "special" per planner.properties
+	public boolean checkSpecialCourse(String subject, String number) {
+		String courseSubjectAndNumber = subject + " " + number;
+		return Arrays.stream(specialCourses).anyMatch(courseSubjectAndNumber::contains);
+	}
+	
+	public boolean checkSectionNumberAppendicies(String sectionNameFull) {
+		return Arrays.stream(sectionNumberAppendicies).anyMatch(sectionNameFull::contains);
 	}
 	
 	public void processJSON(JSONArray courseList, Schedb schedb) throws IOException {
@@ -185,12 +209,7 @@ public class jsonIN {
 			
 			String courseDescRaw = (String) currSection.get("Course_Description");  //course description for first section used for whole course by default
 			String courseDesc;
-			if(currSecDept.equals("CS") && courseNum.equals("525")) {
-				courseDesc = "A topic of current interest is covered in detail. Consult the course descriptions for each individual "
-						+ "section for more information about each topic (in this planner, add the course to your schedule and then "
-						+ "click on each section to see descriptions). (Prerequisites: vary with topic)";
-			}
-			else if(courseDescRaw != null) {
+			if(courseDescRaw != null) {
 				courseDesc = courseDescRaw.replaceAll("\\<[^>]*>", " ");
 				courseDesc = courseDesc.replace("&amp;", "&");
 				courseDesc = courseDesc.replace("&#39;", "'");
@@ -267,35 +286,43 @@ public class jsonIN {
 				
 				//special section parsing rules for sections
 				
-				if(thisCourseSectionFull.contains("-Quiz")) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("-Multipurpose")) {
-					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				}else if(thisCourseSectionFull.contains("-Y")) {
+				if(checkSectionNumberAppendicies(thisCourseSectionFull)) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				
-				//Checking to see if this course section belongs to a "special topics" or "Great Problems Seminar" course
+				
+//				if(thisCourseSectionFull.contains("-Quiz")) {
+//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+//				}else if(thisCourseSectionFull.contains("-Multipurpose")) {
+//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+//				}else if(thisCourseSectionFull.contains("-Y")) {
+//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
+				
+				//Checking to see if this course section is "special" as defined by planner.properties
 				//If true, this will cause the full course section title to display with the section number
 				
-				}else if(thisCourseSectionFull.contains("GPS:") 
-						|| thisCourseSectionFull.contains("- ST:") 
-						|| thisCourseSectionFull.contains("- ST -")
-						|| thisCourseSectionFull.contains("- SP:") 
-						|| thisCourseSectionFull.contains("- AT:") 
-						//|| thisCourseSectionFull.contains("INQ SEM:") 
-						//|| thisCourseSectionFull.contains("PRAC IN HUA:") 
-						//|| thisCourseSectionFull.contains("PRAC HUA:")
-						|| thisCourseSectionFull.contains("- Topics In")
-						|| thisCourseSectionFull.contains("History:")
-						|| (currSecDept.equals("HU") && courseNum.equals("3900"))
-						|| (currSecDept.equals("HU") && courseNum.equals("3910"))
-						|| (currSecDept.equals("ID") && courseNum.equals("2050"))) {
+				}else if(checkSpecialSection(thisCourseSectionFull)) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
 					isGPSorST = true;
+				}else if(checkSpecialCourse(currSecDept, courseNum)) {
+					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
+					isGPSorST = true;
+//				}else if(thisCourseSectionFull.contains("GPS:") 
+//						|| thisCourseSectionFull.contains("- ST:") 
+//						|| thisCourseSectionFull.contains("- ST -")
+//						|| thisCourseSectionFull.contains("- SP:") 
+//						|| thisCourseSectionFull.contains("- AT:") 
+//						|| thisCourseSectionFull.contains("- Topics In")
+//						|| thisCourseSectionFull.contains("History:")
+//						|| (currSecDept.equals("HU") && courseNum.equals("3900"))
+//						|| (currSecDept.equals("HU") && courseNum.equals("3910"))
+//						|| (currSecDept.equals("ID") && courseNum.equals("2050"))) {
+//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
+//					isGPSorST = true;
 					
 				//Checking if this is an interest list section, setting appropriate section name
 				} else if(thisCourseSectionFull.contains("Interest List")){
 					thisSectionNum = "Interest List-" + term;
+					thisProfessor = "N/A";
 					isInterestList = true;
 					
 				}else {

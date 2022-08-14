@@ -29,6 +29,7 @@ public class xmlOUT {
 			rootElement.setAttribute("minutes-per-block", String.valueOf(schedb.getMinutesPerBlock()));
 			doc.appendChild(rootElement);
 			
+			long crnCounter = 0;
 			
 			for (dept department : schedb.getDepartments()) {
 				Element dept = doc.createElement("dept");
@@ -45,8 +46,8 @@ public class xmlOUT {
 					
 					for (section thisSection : thisCourse.getSections()) {
 						Element section = doc.createElement("section");
-						section.setAttribute("crn", "00000");
-						//crnCounter++;
+						section.setAttribute("crn", String.format("%05d", crnCounter));
+						crnCounter++;
 						section.setAttribute("number", thisSection.getNumber());
 						section.setAttribute("seats", String.valueOf(thisSection.getSeats()));
 						section.setAttribute("availableseats", String.valueOf(thisSection.getAvailableseats()));

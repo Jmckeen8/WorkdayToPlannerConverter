@@ -289,14 +289,6 @@ public class jsonIN {
 				if(checkSectionNumberAppendicies(thisCourseSectionFull)) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
 				
-				
-//				if(thisCourseSectionFull.contains("-Quiz")) {
-//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-//				}else if(thisCourseSectionFull.contains("-Multipurpose")) {
-//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-//				}else if(thisCourseSectionFull.contains("-Y")) {
-//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1, thisCourseSectionFull.indexOf("-", thisCourseSectionFull.indexOf("-") + 6) - 1);
-				
 				//Checking to see if this course section is "special" as defined by planner.properties
 				//If true, this will cause the full course section title to display with the section number
 				
@@ -306,18 +298,6 @@ public class jsonIN {
 				}else if(checkSpecialCourse(currSecDept, courseNum)) {
 					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
 					isGPSorST = true;
-//				}else if(thisCourseSectionFull.contains("GPS:") 
-//						|| thisCourseSectionFull.contains("- ST:") 
-//						|| thisCourseSectionFull.contains("- ST -")
-//						|| thisCourseSectionFull.contains("- SP:") 
-//						|| thisCourseSectionFull.contains("- AT:") 
-//						|| thisCourseSectionFull.contains("- Topics In")
-//						|| thisCourseSectionFull.contains("History:")
-//						|| (currSecDept.equals("HU") && courseNum.equals("3900"))
-//						|| (currSecDept.equals("HU") && courseNum.equals("3910"))
-//						|| (currSecDept.equals("ID") && courseNum.equals("2050"))) {
-//					thisSectionNum = thisCourseSectionFull.substring(thisCourseSectionFull.indexOf("-") + 1);
-//					isGPSorST = true;
 					
 				//Checking if this is an interest list section, setting appropriate section name
 				} else if(thisCourseSectionFull.contains("Interest List")){

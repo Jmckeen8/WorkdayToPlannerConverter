@@ -51,10 +51,11 @@ public class Schedb {
 		departments.add(new dept("HI", "History"));
 		departments.add(new dept("HU", "Humanities"));
 		departments.add(new dept("ID", "Interdisciplinary"));
-		departments.add(new dept("IGS", "Intergrative & Global Studies"));
+		departments.add(new dept("IDG", "Interdisciplinary-Graduate"));
+		departments.add(new dept("IGS", "Integrative & Global Studies"));
 		departments.add(new dept("IMGD", "Interactive Media & Game Development"));
 		departments.add(new dept("INTL", "International & Global Studies"));
-		departments.add(new dept("ISE", "English for International Students"));
+		departments.add(new dept("ISE", "Integrated Skills in English"));
 		departments.add(new dept("MA", "Mathematical Sciences"));
 		departments.add(new dept("ME", "Mechanical Engineering"));
 		departments.add(new dept("MFE", "Manufacturing Engineering"));
@@ -62,7 +63,7 @@ public class Schedb {
 		departments.add(new dept("MKT", "Marketing"));
 		departments.add(new dept("ML", "Military Leadership"));
 		departments.add(new dept("MME", "Mathematics for Educators"));
-		departments.add(new dept("MPE", "Masters for Physics Educators"));
+		departments.add(new dept("MPE", "Physics for Educators"));
 		departments.add(new dept("MTE", "Materials Science & Engineering"));
 		departments.add(new dept("MU", "Music"));
 		departments.add(new dept("NEU", "Neuroscience"));
@@ -78,7 +79,7 @@ public class Schedb {
 		departments.add(new dept("RBE", "Robotics Engineering"));
 		departments.add(new dept("RE", "Religion"));
 		departments.add(new dept("SD", "System Dynamics"));
-		departments.add(new dept("SEME", "STEM for Educators"));
+		departments.add(new dept("SEME", "Science, Engineering, Math Education"));
 		departments.add(new dept("SOC", "Sociology"));
 		departments.add(new dept("SP", "Spanish"));
 		departments.add(new dept("SS", "Social Science"));

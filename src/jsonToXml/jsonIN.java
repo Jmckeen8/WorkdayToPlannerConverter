@@ -33,7 +33,7 @@ public class jsonIN {
 	public void readJSON(Schedb schedb) {
 		JSONParser jsonParser = new JSONParser();
 		
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("prod-data.json"), "UTF-8"))){
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("prod-data-raw.json"), "UTF-8"))){
 			Object obj = jsonParser.parse(reader);
 			
 			JSONObject reportEntry = (JSONObject) obj;

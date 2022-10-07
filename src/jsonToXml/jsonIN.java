@@ -344,9 +344,9 @@ public class jsonIN {
 					String clusterLetter = "IntList";
 					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
 				}
-				else if(thisSection.get("Student_Course_Section_Cluster") != null) {
-					String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
-					String clusterLetter = fullClusterString.substring(fullClusterString.indexOf("(") + 1, fullClusterString.indexOf(")"));
+				else if(thisSection.get("CF_LRV_Cluster_Ref_ID") != null) {
+					//String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
+					String clusterLetter = (String) thisSection.get("CF_LRV_Cluster_Ref_ID");
 					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
 				}else {
 					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);

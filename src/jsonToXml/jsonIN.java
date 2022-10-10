@@ -33,7 +33,7 @@ public class jsonIN {
 	public void readJSON(Schedb schedb) {
 		JSONParser jsonParser = new JSONParser();
 		
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("prod-data-raw.json"), "UTF-8"))){
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("prod-data.json"), "UTF-8"))){
 			Object obj = jsonParser.parse(reader);
 			
 			JSONObject reportEntry = (JSONObject) obj;
@@ -268,7 +268,10 @@ public class jsonIN {
 				String thisProfessor = "";
 				if(thisSection.get("Instructors") == null) {
 					thisProfessor = "Not Assigned";
-				}else {
+				} else if(thisSection.get("Instructors").equals("")) {
+					thisProfessor = "Not Assigned";
+				}
+				else {
 					thisProfessor = (String) thisSection.get("Instructors");
 				}
 				//use thisProfessor
@@ -340,16 +343,17 @@ public class jsonIN {
 				//Section cluster (if exists)
 				section newSection;
 				if(isInterestList) {
-					
 					String clusterLetter = "IntList";
 					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
 				}
-				else if(thisSection.get("CF_LRV_Cluster_Ref_ID") != null) {
-					//String fullClusterString = (String) thisSection.get("Student_Course_Section_Cluster");
-					String clusterLetter = (String) thisSection.get("CF_LRV_Cluster_Ref_ID");
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
-				}else {
+				else if(thisSection.get("CF_LRV_Cluster_Ref_ID") == null) {
 					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
+				}
+				else if(thisSection.get("CF_LRV_Cluster_Ref_ID").equals("")){
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
+				}else {
+					String clusterID = (String) thisSection.get("CF_LRV_Cluster_Ref_ID");
+					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterID, secCourseDesc);
 				}
 				
 				//build new section object ^^^^
@@ -376,6 +380,8 @@ public class jsonIN {
 				String allPeriodsString = (String) thisSection.get("Section_Details");
 				if (allPeriodsString == null) {
 					allPeriodsString = "Unknown|";  //for some reason at least one class has no section details??
+				}else if(allPeriodsString.equals("")) {
+					allPeriodsString = "Unknown|";
 				}
 				String[] allPeriods = allPeriodsString.split(";");
 				for (String period : allPeriods) {

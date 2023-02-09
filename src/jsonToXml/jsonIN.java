@@ -121,15 +121,6 @@ public class jsonIN {
 				break;
 			}
 			
-			//on first course section, read "Academic_Year" value from JSON and write it to yearHeader.txt
-			if (index == 0) {
-				String yearHeader = (String) currSection.get("Academic_Year");
-				FileWriter writer = new FileWriter("yearHeader.txt", false);
-				writer.write(yearHeader);
-				writer.close();
-				
-			}
-			
 			JSONArray allSectionsThisCourseTerm = new JSONArray(); //array for all sections of a given course in a single term
 			allSectionsThisCourseTerm.add(currSection);
 			
@@ -146,6 +137,15 @@ public class jsonIN {
 					index = index + 1;
 				}
 				continue;
+			}
+			
+			//on first course section, read "Academic_Year" value from JSON and write it to yearHeader.txt
+			if (index == 0) {
+				String yearHeader = (String) currSection.get("Academic_Year");
+				FileWriter writer = new FileWriter("yearHeader.txt", false);
+				writer.write(yearHeader);
+				writer.close();
+				
 			}
 			
 			int findOthersAddition = 1;  //place of next section we're checking

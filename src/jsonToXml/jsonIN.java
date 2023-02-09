@@ -111,6 +111,7 @@ public class jsonIN {
 	
 	public void processJSON(JSONArray courseList, Schedb schedb) throws IOException {
 		boolean cont = true;
+		boolean yearFound = false;
 		int index = 0;
 		while (cont) {
 			JSONObject currSection;
@@ -139,13 +140,13 @@ public class jsonIN {
 				continue;
 			}
 			
-			//on first course section, read "Academic_Year" value from JSON and write it to yearHeader.txt
-			if (index == 0) {
+			//on first VALID course section, read "Academic_Year" value from JSON and write it to yearHeader.txt
+			if (yearFound == false) {
 				String yearHeader = (String) currSection.get("Academic_Year");
 				FileWriter writer = new FileWriter("yearHeader.txt", false);
 				writer.write(yearHeader);
 				writer.close();
-				
+				yearFound = true;
 			}
 			
 			int findOthersAddition = 1;  //place of next section we're checking

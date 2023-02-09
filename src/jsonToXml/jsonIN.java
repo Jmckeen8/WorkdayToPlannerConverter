@@ -328,7 +328,7 @@ public class jsonIN {
 				int waitlistTotal = Integer.parseInt(WaitlistCapacityString.substring(WaitlistCapacityString.indexOf("/") + 1, WaitlistCapacityString.length()));
 				
 				//establishing the course description for *this particular section*
-				String secCourseDescRaw = (String) thisSection.get("Course_Description");  //course description for first section used for whole course by default
+				String secCourseDescRaw = (String) thisSection.get("Course_Section_Description"); 
 				String secCourseDesc;
 				if(secCourseDescRaw != null) {
 					secCourseDesc = secCourseDescRaw.replaceAll("\\<[^>]*>", " ");

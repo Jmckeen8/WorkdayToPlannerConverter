@@ -3,6 +3,7 @@ package jsonToXml;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,6 +119,15 @@ public class jsonIN {
 			}catch(Exception e) {
 				cont = false;
 				break;
+			}
+			
+			//on first course section, read "Academic_Year" value from JSON and write it to yearHeader.txt
+			if (index == 0) {
+				String yearHeader = (String) currSection.get("Academic_Year");
+				FileWriter writer = new FileWriter("yearHeader.txt", false);
+				writer.write(yearHeader);
+				writer.close();
+				
 			}
 			
 			JSONArray allSectionsThisCourseTerm = new JSONArray(); //array for all sections of a given course in a single term

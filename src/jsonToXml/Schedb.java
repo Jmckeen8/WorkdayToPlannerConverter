@@ -19,6 +19,7 @@ public class Schedb {
 	
 	public void generateAllDepartments() {
 		departments.add(new dept("AB", "Arabic"));
+		departments.add(new dept("ACC", "Accounting"));
 		departments.add(new dept("AE", "Aerospace Engineering"));
 		departments.add(new dept("AR", "Art"));
 		departments.add(new dept("AREN", "Architectural Engineering"));
@@ -72,7 +73,6 @@ public class Schedb {
 		departments.add(new dept("OIE", "Operations & Industrial Engineering"));
 		departments.add(new dept("OT", "Other"));
 		departments.add(new dept("PC", "Project Center"));
-		departments.add(new dept("PE", "Physical Education"));
 		departments.add(new dept("PH", "Physics"));
 		departments.add(new dept("PSY", "Psychology"));
 		departments.add(new dept("PY", "Philosophy"));
@@ -87,6 +87,7 @@ public class Schedb {
 		departments.add(new dept("SYS", "Systems Engineering"));
 		departments.add(new dept("TH", "Theatre"));
 		departments.add(new dept("WR", "Writing"));
+		departments.add(new dept("WPE", "Wellness & Physical Education"));
 		
 	}
 

@@ -57,6 +57,7 @@ public class Schedb {
 		departments.add(new dept("IMGD", "Interactive Media & Game Development"));
 		departments.add(new dept("INTL", "International & Global Studies"));
 		departments.add(new dept("ISE", "Integrated Skills in English"));
+		departments.add(new dept("JP", "Japanese"));
 		departments.add(new dept("MA", "Mathematical Sciences"));
 		departments.add(new dept("ME", "Mechanical Engineering"));
 		departments.add(new dept("MFE", "Manufacturing Engineering"));

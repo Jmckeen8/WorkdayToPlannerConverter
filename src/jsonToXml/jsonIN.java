@@ -351,20 +351,24 @@ public class jsonIN {
 					secCourseDesc = secCourseDescRaw;
 				}
 				
+				//CRN (Workday cour_sec_def_referenceID)
+				String crnString = (String) thisSection.get("cour_sec_def_referenceID");
+				long crn = Long.parseLong(crnString.substring(28, 34));
+				
 				//Section cluster (if exists)
 				section newSection;
 				if(isInterestList) {
 					String clusterLetter = "IntList";
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
+					newSection = new section(crn, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterLetter, secCourseDesc);
 				}
 				else if(thisSection.get("CF_LRV_Cluster_Ref_ID") == null) {
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
+					newSection = new section(crn, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
 				}
 				else if(thisSection.get("CF_LRV_Cluster_Ref_ID").equals("")){
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
+					newSection = new section(crn, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, secCourseDesc);
 				}else {
 					String clusterID = (String) thisSection.get("CF_LRV_Cluster_Ref_ID");
-					newSection = new section(00000, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterID, secCourseDesc);
+					newSection = new section(crn, thisSectionNum, capacity, availableSeats, waitlistTotal, waitlistActual, "202201", termActual, clusterID, secCourseDesc);
 				}
 				
 				//build new section object ^^^^

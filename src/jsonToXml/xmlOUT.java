@@ -48,7 +48,7 @@ public class xmlOUT {
 						Element section = doc.createElement("section");
 						//section.setAttribute("crn", String.format("%05d", crnCounter));
 						//crnCounter++;
-						section.setAttribute("crn", String.format("%06d", thisSection.getCrn()));
+						section.setAttribute("crn", String.format("%07d", thisSection.getCrn()));
 						section.setAttribute("number", thisSection.getNumber());
 						section.setAttribute("seats", String.valueOf(thisSection.getSeats()));
 						section.setAttribute("availableseats", String.valueOf(thisSection.getAvailableseats()));

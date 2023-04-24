@@ -559,7 +559,10 @@ public class jsonIN {
 	
 	//method takes a list of sections and combines them into one section for planner to display as a group
 	public section combiner(ArrayList<section> sections) {
-		long crn = sections.get(0).getCrn();
+		long crn = 0;
+		for (int i = 0; i < sections.size(); i++) {  //when combining sections, sum CRNs from all sections to get combined section
+			crn = crn + sections.get(i).getCrn();
+		}
 		String description = sections.get(0).getDescription();
 		
 		String number = "";

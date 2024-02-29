@@ -218,7 +218,23 @@ public class jsonIN {
 				courseName = currSectionCourseSection.substring(currSectionCourseSection.indexOf("- ") + 2);
 			}
 			
-			String courseDescRaw = (String) currSection.get("Course_Description");  //course description for first section used for whole course by default
+			//if course is a special topics course, use Course_Description
+			//else use Course_Section_Description
+			//compensating for Workday's incompetency
+			boolean isSTCourse = false;
+			if(checkSpecialCourse(department.getAbbrev(), courseNum) == true) {
+				isSTCourse = true;
+			}
+			if(checkSpecialSection(currSectionCourseSection) == true) {
+				isSTCourse = true;
+			}
+			String courseDescRaw = "";
+			if(isSTCourse == true) {
+				courseDescRaw = (String) currSection.get("Course_Description");
+			} else {
+				courseDescRaw = (String) currSection.get("Course_Section_Description");
+			} 
+			
 			String courseDesc;
 			if(courseDescRaw != null) {
 				courseDesc = courseDescRaw.replaceAll("\\<[^>]*>", " ");
@@ -262,14 +278,8 @@ public class jsonIN {
 				//type
 				String workdayType = (String) thisSection.get("Instructional_Format");
 				String plannerType = "";
-				if(workdayType.equals("Discussion")) {
-					plannerType = "Discussion";
-				}else if(workdayType.equals("Laboratory")) {
+				if(workdayType.equals("Laboratory")) {
 					plannerType = "Lab";
-				}else if(workdayType.equals("Workshop")) {
-					plannerType = "Physical Education";
-				}else if(workdayType.equals("Experimental")) {
-					plannerType = "Other";
 				}else {
 					plannerType = workdayType;  //Lecture and Seminar are OK with Planner
 				}

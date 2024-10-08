@@ -22,6 +22,7 @@ public class Schedb {
 		departments.add(new dept("ACC", "Accounting"));
 		departments.add(new dept("AE", "Aerospace Engineering"));
 		departments.add(new dept("AR", "Art"));
+		departments.add(new dept("ARCH", "Architecture"));
 		departments.add(new dept("AREN", "Architectural Engineering"));
 		departments.add(new dept("AS", "Air Science"));
 		departments.add(new dept("BB", "Biology"));
@@ -38,7 +39,7 @@ public class Schedb {
 		departments.add(new dept("DS", "Data Science"));
 		departments.add(new dept("ECE", "Electrical & Computer Engineering"));
 		departments.add(new dept("ECON", "Economics"));
-		departments.add(new dept("EDU", "Education"));
+		departments.add(new dept("EDU", "Teacher Education"));
 		departments.add(new dept("EN", "English"));
 		departments.add(new dept("ENV", "Environmental Studies"));
 		departments.add(new dept("ES", "Engineering Science"));

@@ -27,6 +27,7 @@ public class jsonIN {
 	//Properties file attributes:
 	String fallYear;
 	String springYear;
+	boolean showOldLink;
 	String[] specialCourses;
 	String[] specialSections;
 	String[] sectionNumberAppendicies;
@@ -68,6 +69,7 @@ public class jsonIN {
 			
 			this.fallYear = prop.getProperty("FallYear");
 			this.springYear = prop.getProperty("SpringYear");
+			this.showOldLink = Boolean.parseBoolean(prop.getProperty("ShowOldLink"));
 			this.specialCourses = prop.getProperty("SpecialCourses").split(",");
 			this.specialSections = prop.getProperty("SpecialSections").split(",");
 			this.sectionNumberAppendicies = prop.getProperty("SectionNumberAppendicies").split(",");
@@ -110,6 +112,16 @@ public class jsonIN {
 	}
 	
 	public void processJSON(JSONArray courseList, Schedb schedb) throws IOException {
+		
+		//Filter out all sections with the status "Canceled: Preliminary"
+		for (int i = courseList.size() - 1; i >= 0; i--) {
+			JSONObject currSection = (JSONObject) courseList.get(i);
+			String sectionStatus = (String) currSection.get("Section_Status");
+			if(sectionStatus.equals("Canceled: Preliminary")) {
+				courseList.remove(i);
+			}
+		}
+		
 		boolean cont = true;
 		boolean yearFound = false;
 		int index = 0;
@@ -145,6 +157,12 @@ public class jsonIN {
 				String yearHeader = (String) currSection.get("Academic_Year");
 				FileWriter writer = new FileWriter("yearHeader.txt", false);
 				writer.write(yearHeader);
+				writer.write("\n");
+				if(showOldLink) {
+					writer.write("true");
+				} else {
+					writer.write("false");
+				}
 				writer.close();
 				yearFound = true;
 			}
